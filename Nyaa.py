@@ -45,11 +45,11 @@ class NyaaEntry(object):
 	def magnet(self):
 		torrent_f, torrent_path = tempfile.mkstemp()
 		r = requests.get(self.dl_link, stream=True)
-		with open(torrent_path, 'w+b') as f:
-			for chunk in r.iter_content(128):
-				f.write(chunk)
+		f = os.fdopen(torrent_f, 'wb')
+		for chunk in r.iter_content(128):
+			f.write(chunk)
+		f.close()
 		metadata = decode_from_file(torrent_path)
-		torrent_f.close()
 		os.unlink(torrent_path)
 		hashcontents = encode(metadata[b'info'])
 		digest = hashlib.sha1(hashcontents).digest()
