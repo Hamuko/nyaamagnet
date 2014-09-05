@@ -1,0 +1,6 @@
+{
+    "Anime": ["English-translated Anime", "Raw Anime"],
+    "Audio": ["Lossless Audio", "Lossy Audio"],
+    "Literature": ["English-translated Literature", "Raw Literature"],
+    "Live Action": ["English-translated Live Action", "Promotional Live Action", "Raw Live Action"]
+}
