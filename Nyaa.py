@@ -52,7 +52,7 @@ class NyaaEntry(object):
 			f.write(chunk)
 		f.close()
 		try:
-			metadata = decode_from_file(tf[1])
+			metadata = decode_from_file(torrent_path)
 		except DecodingError:
 			return 0
 		os.unlink(torrent_path)
