@@ -1,8 +1,8 @@
+from bencodepy import decode_from_file, encode, DecodingError
 from bs4 import BeautifulSoup
 import base64
-from bencodepy import decode_from_file, encode
-import os
 import hashlib
+import os
 import re
 import requests
 import tempfile
@@ -51,7 +51,10 @@ class NyaaEntry(object):
 		for chunk in r.iter_content(128):
 			f.write(chunk)
 		f.close()
-		metadata = decode_from_file(torrent_path)
+		try:
+			metadata = decode_from_file(tf[1])
+		except DecodingError:
+			return 0
 		os.unlink(torrent_path)
 		hashcontents = encode(metadata[b'info'])
 		digest = hashlib.sha1(hashcontents).digest()
