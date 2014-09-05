@@ -20,7 +20,9 @@ class Nyaa(object):
 class NyaaEntry(object):
 	def __init__(self, url):
 		self.url = url
-		soup = BeautifulSoup(requests.get(url).text)
+		r = requests.get(url)
+		setattr(r, 'encoding', 'utf-8')
+		soup = BeautifulSoup(r.text)
 		if soup.find('div', class_='content').text == '\xa0The torrent you are looking for does not appear to be in the database.':
 			self.exists = False
 		else:
