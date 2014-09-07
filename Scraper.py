@@ -26,6 +26,6 @@ for i in range(start_entry, nt.last_entry + 1):
 				continue
 			print('Entry: {}, Name: {}'.format(i, entry.name))
 			db.write_torrent((i, entry.name, entry.magnet, db.categories[entry.category],
-				db.sub_categories[entry.sub_category], db.status[entry.status], entry.date, entry.time))
+				db.sub_categories[entry.sub_category], db.status[entry.status]))
 
 db.c.close()

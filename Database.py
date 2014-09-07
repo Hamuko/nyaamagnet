@@ -36,7 +36,6 @@ class Database(object):
 			(torrent_id INTEGER NOT NULL, torrent_name TEXT NOT NULL, \
 			torrent_magnet TEXT NOT NULL, category_id INTEGER NOT NULL, \
 			sub_category_id INTEGER NOT NULL, status_id INTEGER NOT NULL, \
-			torrent_date TEXT, torrent_time TEXT, \
 			PRIMARY KEY (torrent_id), \
 			FOREIGN KEY (category_id) REFERENCES categories(category_id), \
 			FOREIGN KEY (sub_category_id) REFERENCES sub_categories(sub_category_id), \
@@ -131,7 +130,7 @@ class Database(object):
 			print('Table \'status\' broken.')
 			exit()
 
-		comparison = [(0, 'torrent_id', 'INTEGER', 1, None, 1), (1, 'torrent_name', 'TEXT', 1, None, 0), (2, 'torrent_magnet', 'TEXT', 1, None, 0), (3, 'category_id', 'INTEGER', 1, None, 0), (4, 'sub_category_id', 'INTEGER', 1, None, 0), (5, 'status_id', 'INTEGER', 1, None, 0), (6, 'torrent_date', 'TEXT', 0, None, 0), (7, 'torrent_time', 'TEXT', 0, None, 0)]
+		comparison = [(0, 'torrent_id', 'INTEGER', 1, None, 1), (1, 'torrent_name', 'TEXT', 1, None, 0), (2, 'torrent_magnet', 'TEXT', 1, None, 0), (3, 'category_id', 'INTEGER', 1, None, 0), (4, 'sub_category_id', 'INTEGER', 1, None, 0), (5, 'status_id', 'INTEGER', 1, None, 0)]
 		cur.execute('PRAGMA table_info(torrents);')
 		if cur.fetchall() == comparison:
 			print('Table \'torrents\' verified.')
@@ -155,6 +154,6 @@ class Database(object):
 		self.c.commit()
 
 	def write_torrent(self, data):
-		'''id, name, magnet, category, sub_category, status, date, time'''
-		self.c.execute('INSERT INTO torrents VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
+		'''id, name, magnet, category, sub_category, status'''
+		self.c.execute('INSERT INTO torrents VALUES (?, ?, ?, ?, ?, ?)', data)
 		self.c.commit()

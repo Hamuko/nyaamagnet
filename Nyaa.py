@@ -22,26 +22,43 @@ class NyaaEntry(object):
 		self.url = url
 		r = requests.get(url)
 		setattr(r, 'encoding', 'utf-8')
-		soup = BeautifulSoup(r.text)
-		if soup.find('div', class_='content').text == '\xa0The torrent you are looking for does not appear to be in the database.':
+		self.page = BeautifulSoup(r.text)
+		if self.page.find('div', class_='content').text == '\xa0The torrent you are looking for does not appear to be in the database.':
 			self.exists = False
 		else:
 			self.exists = True
-		if self.exists == True:
-			self.category = soup.find('td', class_='viewcategory').find_all('a')[0].text
-			self.sub_category = soup.find('td', class_='viewcategory').find_all('a')[1].text
-			self.name = soup.find('td', class_='viewtorrentname').text
-			self.date, self.time = soup.find('td', class_='vtop').text.split(', ')
-			self.dl_link = soup.find('div', class_='viewdownloadbutton').a['href']
-			_status = soup.find('div', class_=re.compile('content'))['class']
-			if 'trusted' in _status:
-				self.status = 'trusted'
-			elif 'remake' in _status:
-				self.status = 'remake'
-			elif 'aplus' in _status:
-				self.status = 'a+'
-			else:
-				self.status = 'normal'
+
+	@property
+	def category(self):
+		return self.page.find('td', class_='viewcategory').find_all('a')[0].text
+
+	@property
+	def sub_category(self):
+		return self.page.find('td', class_='viewcategory').find_all('a')[1].text
+
+	@property
+	def name(self):
+		return self.page.find('td', class_='viewtorrentname').text
+
+	@property
+	def time(self):
+		return self.page.find('td', class_='vtop').text.split(', ')
+
+	@property
+	def dl_link(self):
+		return self.page.find('div', class_='viewdownloadbutton').a['href']
+
+	@property
+	def status(self):
+		_status = self.page.find('div', class_=re.compile('content'))['class']
+		if 'trusted' in _status:
+			return 'trusted'
+		elif 'remake' in _status:
+			return 'remake'
+		elif 'aplus' in _status:
+			return 'a+'
+		else:
+			return 'normal'
 
 	@property
 	def magnet(self):
