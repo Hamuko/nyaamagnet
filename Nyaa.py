@@ -20,6 +20,7 @@ class Nyaa(object):
 class NyaaEntry(object):
 	def __init__(self, url):
 		self.url = url
+		self.id = re.search(r'http://www.nyaa.se/\?page=view&tid=([0-9]*)', url).group(1)
 		r = requests.get(url)
 		setattr(r, 'encoding', 'utf-8')
 		self.page = BeautifulSoup(r.text)
@@ -46,7 +47,8 @@ class NyaaEntry(object):
 
 	@property
 	def dl_link(self):
-		return self.page.find('div', class_='viewdownloadbutton').a['href']
+		return 'http://www.nyaa.se/?page=download&tid={}'.format(self.id)
+
 
 	@property
 	def status(self):
