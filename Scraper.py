@@ -18,7 +18,7 @@ if len(optlist) > 0:
 if 'start_entry' not in globals():
 	start_entry = db.last_entry + 1
 
-for i in range(start_entry + 1, nt.last_entry + 1):
+for i in range(start_entry, nt.last_entry + 1):
 	entry = NyaaEntry('http://www.nyaa.se/?page=view&tid={}'.format(i))
 	if entry.exists == True:
 		if entry.category in db.categories and entry.sub_category in db.sub_categories:
