@@ -52,4 +52,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-db.sqlite
+nyaa.sqlite
+sukebei.sqlite

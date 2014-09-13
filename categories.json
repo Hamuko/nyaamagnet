@@ -1,6 +1,38 @@
 {
-    "Anime": ["English-translated Anime", "Raw Anime"],
-    "Audio": ["Lossless Audio", "Lossy Audio"],
-    "Literature": ["English-translated Literature", "Raw Literature"],
-    "Live Action": ["English-translated Live Action", "Promotional Live Action", "Raw Live Action"]
+    "Nyaa": {
+        "Live Action": [
+            "English-translated Live Action",
+            "Promotional Live Action",
+            "Raw Live Action"
+        ],
+        "Software": [
+            "Applications",
+            "Games"
+        ],
+        "Audio": [
+            "Lossless Audio",
+            "Lossy Audio"
+        ],
+        "Literature": [
+            "English-translated Literature",
+            "Raw Literature"
+        ],
+        "Anime": [
+            "English-translated Anime",
+            "Raw Anime"
+        ]
+    },
+    "Sukebei": {
+        "Art": [
+            "Anime",
+            "Doujinshi",
+            "Games",
+            "Manga",
+            "Pictures"
+        ],
+        "Real Life": [
+            "Photobooks & Pictures",
+            "Videos"
+        ]
+    }
 }

@@ -4,13 +4,14 @@ import sqlite3
 
 class Database(object):
 	"""docstring for Database"""
-	def __init__(self, path):
+	def __init__(self, path, filename):
 		self.path = path
-		if os.path.exists(path + '/db.sqlite'):
+		self.filename = filename + '.sqlite'
+		if os.path.exists(self.path + '/' + self.filename):
 			self.file_exists = True
 		else:
 			self.file_exists = False
-		self.c = sqlite3.connect(path + '/db.sqlite')
+		self.c = sqlite3.connect(self.path + '/' + self.filename)
 		if not self.file_exists:
 			self.create_database()
 		self.verify_database()
@@ -34,7 +35,7 @@ class Database(object):
 		self.c.execute('CREATE TABLE status (status_id INTEGER NOT NULL, status_name TEXT NOT NULL, PRIMARY KEY (status_id))')
 		self.c.execute('CREATE TABLE torrents \
 			(torrent_id INTEGER NOT NULL, torrent_name TEXT NOT NULL, \
-			torrent_magnet TEXT NOT NULL, category_id INTEGER NOT NULL, \
+			torrent_hash TEXT NOT NULL, category_id INTEGER NOT NULL, \
 			sub_category_id INTEGER NOT NULL, status_id INTEGER NOT NULL, \
 			PRIMARY KEY (torrent_id), \
 			FOREIGN KEY (category_id) REFERENCES categories(category_id), \
@@ -43,7 +44,10 @@ class Database(object):
 
 	def check_categories(self):
 		with open(self.path + '/categories.json') as f:
-			category_json = json.load(f)
+			if self.filename == 'sukebei.sqlite':
+				category_json = json.load(f)['Sukebei']
+			else:
+				category_json = json.load(f)['Nyaa']
 		cur = self.c.cursor()
 		cur.execute('SELECT * FROM categories')
 		categories = cur.fetchall()
@@ -86,6 +90,15 @@ class Database(object):
 			for stat in status:
 				if stat not in t2:
 					self.write_status((next_id, stat))
+
+	def entry_exists(self, id):
+		cur = self.c.cursor()
+		t = (id,)
+		cur.execute('SELECT * FROM torrents WHERE torrent_id = ?', t)
+		if cur.fetchall() == []:
+			return False
+		else:
+			return True
 
 	def load_values(self):
 		cur = self.c.cursor()
@@ -130,7 +143,7 @@ class Database(object):
 			print('Table \'status\' broken.')
 			exit()
 
-		comparison = [(0, 'torrent_id', 'INTEGER', 1, None, 1), (1, 'torrent_name', 'TEXT', 1, None, 0), (2, 'torrent_magnet', 'TEXT', 1, None, 0), (3, 'category_id', 'INTEGER', 1, None, 0), (4, 'sub_category_id', 'INTEGER', 1, None, 0), (5, 'status_id', 'INTEGER', 1, None, 0)]
+		comparison = [(0, 'torrent_id', 'INTEGER', 1, None, 1), (1, 'torrent_name', 'TEXT', 1, None, 0), (2, 'torrent_hash', 'TEXT', 1, None, 0), (3, 'category_id', 'INTEGER', 1, None, 0), (4, 'sub_category_id', 'INTEGER', 1, None, 0), (5, 'status_id', 'INTEGER', 1, None, 0)]
 		cur.execute('PRAGMA table_info(torrents);')
 		if cur.fetchall() == comparison:
 			print('Table \'torrents\' verified.')
@@ -154,6 +167,6 @@ class Database(object):
 		self.c.commit()
 
 	def write_torrent(self, data):
-		'''id, name, magnet, category, sub_category, status'''
+		'''id, name, hash, category, sub_category, status'''
 		self.c.execute('INSERT INTO torrents VALUES (?, ?, ?, ?, ?, ?)', data)
 		self.c.commit()

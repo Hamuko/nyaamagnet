@@ -8,19 +8,21 @@ import requests
 import tempfile
 
 class Nyaa(object):
-	def __init__(self):
-		pass
+	def __init__(self, url):
+		self.url = url
+		self.info_url = url + '?page=view&tid='
+		self.dl_url = url + '?page=download&tid='
 
 	@property
 	def last_entry(self):
-		soup = BeautifulSoup(requests.get('http://www.nyaa.se/').text)
+		soup = BeautifulSoup(requests.get(self.url).text)
 		link = soup.find('tr', class_='tlistrow').find('td', class_='tlistname').a['href']
 		return int(re.search('tid=([0-9]*)', link).group(1))
 
 class NyaaEntry(object):
 	def __init__(self, url):
 		self.url = url
-		self.id = re.search(r'http://www.nyaa.se/\?page=view&tid=([0-9]*)', url).group(1)
+		self.id = re.search(r'nyaa.se/\?page=view&tid=([0-9]*)', url).group(1)
 		r = requests.get(url)
 		setattr(r, 'encoding', 'utf-8')
 		self.page = BeautifulSoup(r.text)
@@ -46,11 +48,6 @@ class NyaaEntry(object):
 		return self.page.find('td', class_='vtop').text.split(', ')
 
 	@property
-	def dl_link(self):
-		return 'http://www.nyaa.se/?page=download&tid={}'.format(self.id)
-
-
-	@property
 	def status(self):
 		_status = self.page.find('div', class_=re.compile('content'))['class']
 		if 'trusted' in _status:
@@ -62,10 +59,13 @@ class NyaaEntry(object):
 		else:
 			return 'normal'
 
-	@property
-	def magnet(self):
+	def magnet_link(self, url):
+		r = requests.head(url)
+		return re.search(r'magnet:\?xt=urn:btih:(.*)&tr=', r.headers['Location']).group(1).upper()
+
+	def hash(self, url):
 		torrent_f, torrent_path = tempfile.mkstemp()
-		r = requests.get(self.dl_link, stream=True)
+		r = requests.get(url, stream=True)
 		f = os.fdopen(torrent_f, 'wb')
 		for chunk in r.iter_content(128):
 			f.write(chunk)
@@ -78,5 +78,5 @@ class NyaaEntry(object):
 		hashcontents = encode(metadata[b'info'])
 		digest = hashlib.sha1(hashcontents).digest()
 		b32hash = base64.b32encode(digest)
-		return 'magnet:?xt=urn:btih:{}'.format(b32hash.decode())
+		return b32hash.decode()
 	
