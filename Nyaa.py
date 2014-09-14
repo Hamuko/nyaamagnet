@@ -13,7 +13,7 @@ class Nyaa(object):
 	def last_entry(self):
 		r = requests.get(self.url)
 		if r.status_code not in range(100, 399):
-			print('Fetching error, nyaa may have blocked your IP or be down (HTTP %s)' % r.status_code, file=sys.stderr)
+			print('Fetching error, nyaa may have blocked your IP or be down (HTTP {})'.format(r.status_code), file=sys.stderr)
 			sys.exit(1)
 
 		soup = BeautifulSoup(r.text)
