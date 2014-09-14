@@ -58,5 +58,8 @@ class NyaaEntry(object):
 	@property
 	def hash(self):
 		r = requests.head(self.download_url)
-		return re.search(r'magnet:\?xt=urn:btih:(.*)&tr=', r.headers['Location']).group(1).upper()
+		if 'Location' in r.headers:
+			return re.search(r'magnet:\?xt=urn:btih:(.*)&tr=', r.headers['Location']).group(1).upper()
+		else:
+			return None
 	

@@ -75,7 +75,11 @@ for i in range(config.start_entry, nt.last_entry + 1):
 	if entry.exists == True:
 		if entry.category in db.categories and entry.sub_category in db.sub_categories:
 			print('Entry: {}, Name: {}'.format(i, entry.name))
-			db.write_torrent((i, entry.name, entry.hash, db.categories[entry.category],
+			info_hash = entry.hash
+			if info_hash == None:
+				print('Torrent aliased. Skipping.')
+				continue
+			db.write_torrent((i, entry.name, info_hash, db.categories[entry.category],
 				db.sub_categories[entry.sub_category], db.status[entry.status]))
 
 db.c.close()
