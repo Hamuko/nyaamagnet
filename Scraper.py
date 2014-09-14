@@ -71,17 +71,11 @@ for i in range(config.start_entry, nt.last_entry + 1):
 		if db.entry_exists(i):
 			continue
 
-	entry = NyaaEntry(nt.info_url + str(i))
+	entry = NyaaEntry(nt, i)
 	if entry.exists == True:
 		if entry.category in db.categories and entry.sub_category in db.sub_categories:
-			if entry.hash == 0:
-				continue
 			print('Entry: {}, Name: {}'.format(i, entry.name))
-			try:
-				torrent_hash = entry.magnet_link(nt.dl_url + str(i))
-			except:
-				torrent_hash = entry.hash(nt.dl_url + str(i))
-			db.write_torrent((i, entry.name, torrent_hash, db.categories[entry.category],
+			db.write_torrent((i, entry.name, entry.hash, db.categories[entry.category],
 				db.sub_categories[entry.sub_category], db.status[entry.status]))
 
 db.c.close()
