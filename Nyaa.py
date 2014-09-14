@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import requests
+import sys
 
 class Nyaa(object):
 	def __init__(self, url):
@@ -11,6 +12,11 @@ class Nyaa(object):
 	@property
 	def last_entry(self):
 		soup = BeautifulSoup(requests.get(self.url).text)
+
+		if soup.status_code not in range(100, 399):
+			print('Fetching error, nyaa may have blocked your IP or be down', file=sys.stderr)
+			sys.exit(1)
+
 		link = soup.find('tr', class_='tlistrow').find('td', class_='tlistname').a['href']
 		return int(re.search('tid=([0-9]*)', link).group(1))
 
@@ -62,4 +68,3 @@ class NyaaEntry(object):
 			return re.search(r'magnet:\?xt=urn:btih:(.*)&tr=', r.headers['Location']).group(1).upper()
 		else:
 			return None
-	
