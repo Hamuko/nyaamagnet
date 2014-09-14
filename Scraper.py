@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from Database import Database
 from Nyaa import Nyaa, NyaaEntry
 import getopt
