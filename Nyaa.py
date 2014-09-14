@@ -14,7 +14,7 @@ class Nyaa(object):
 		soup = BeautifulSoup(requests.get(self.url).text)
 
 		if soup.status_code not in range(100, 399):
-			print('Fetching error, nyaa may be down', file=sys.stderr)
+			print('Fetching error, nyaa may have blocked your IP or be down', file=sys.stderr)
 			sys.exit(1)
 
 		link = soup.find('tr', class_='tlistrow').find('td', class_='tlistname').a['href']
