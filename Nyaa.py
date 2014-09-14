@@ -11,12 +11,12 @@ class Nyaa(object):
 
 	@property
 	def last_entry(self):
-		soup = BeautifulSoup(requests.get(self.url).text)
-
-		if soup.status_code not in range(100, 399):
+		r = requests.get(self.url)
+		if r.status_code not in range(100, 399):
 			print('Fetching error, nyaa may have blocked your IP or be down', file=sys.stderr)
 			sys.exit(1)
 
+		soup = BeautifulSoup(r.text)
 		link = soup.find('tr', class_='tlistrow').find('td', class_='tlistname').a['href']
 		return int(re.search('tid=([0-9]*)', link).group(1))
 
