@@ -6,6 +6,7 @@ Scrape Nyaa as magnet links.
 # REQUIREMENTS
 - Python 3.4 (haven't tested on any lower versions of Python 3)
 - [Requests](http://docs.python-requests.org/en/latest/)
+- [Beautiful Soup](http://www.crummy.com/software/BeautifulSoup/)
 
 # USAGE
 Add the categories you want to scrape in categories.json. The formatting should be fairly obvious from the default configuration.
