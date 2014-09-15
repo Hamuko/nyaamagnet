@@ -21,7 +21,7 @@ def load_settings():
 	if len(optlist) > 0:
 		for opt, arg in optlist:
 			if opt == '--start':
-				self.start_entry = arg
+				config.start_entry = arg
 
 	if len(args) == 0:
 		print('Please supply arguments.')
