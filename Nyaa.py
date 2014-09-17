@@ -3,6 +3,16 @@ import re
 import requests
 import sys
 
+def retry_if_fails(r):
+	if r.status_code not in range(100, 399):
+		print('Connection error, retrying... (HTTP {})'.format(r.status_code), file=sys.stderr)
+		return retry_if_fails(r)
+	try:
+		return r
+	except(requests.exceptions.ConnectionError, requests.packages.urllib3.exceptions.ProtocolError) as e:
+		print('Connection error, retrying... ({})'.format(e.args[0].args[1]), file=sys.stderr)
+		return retry_if_fails(r)
+
 class Nyaa(object):
 	def __init__(self, url):
 		self.url = url
@@ -25,14 +35,7 @@ class NyaaEntry(object):
 		self.info_url = '{}{}'.format(nyaa.info_url, nyaa_id)
 		self.download_url = '{}{}&magnet=1'.format(nyaa.dl_url, nyaa_id)
 
-		try:
-			r = requests.get(self.info_url)
-			if r.status_code not in range(100, 399):
-				print('Connection error, retrying... (HTTP {})'.format(e), file=sys.stderr)
-		except (requests.exceptions.ConnectionError, requests.packages.urllib3.exceptions.ProtocolError) as e:
-			print('Connection error, retrying... ({})'.format(e.args[0].args[1]), file=sys.stderr)
-			r = requests.get(self.info_url)
-
+		r = retry_if_fails(requests.get(self.info_url))
 		setattr(r, 'encoding', 'utf-8')
 		self.page = BeautifulSoup(r.text)
 		if self.page.find('div', class_='content').text == '\xa0The torrent you are looking for does not appear to be in the database.':
@@ -70,11 +73,7 @@ class NyaaEntry(object):
 
 	@property
 	def hash(self):
-		try:
-			r = requests.head(self.download_url)
-		except (requests.exceptions.ConnectionError, requests.packages.urllib3.exceptions.ProtocolError) as e:
-			print('Connection error, retrying... ({})'.format(e.args[0].args[1]), file=sys.stderr)
-			r = requests.head(self.download_url)
+		r = retry_if_fails(requests.head(self.download_url))
 		if 'Location' in r.headers:
 			return re.search(r'magnet:\?xt=urn:btih:(.*)&tr=', r.headers['Location']).group(1).upper()
 		else:
