@@ -11,8 +11,8 @@ def _retry_on_fail(req, *args, **kwargs):
 			return _retry_on_fail(req, *args, **kwargs)
 		else:
 			return r
-	except requests.exceptions.ConnectionError as e:
-		print('Connection error, retrying... ({})'.format(e.args[0].args[1]), file=sys.stderr)
+	except (requests.exceptions.ConnectionError, requests.packages.urllib3.exceptions.ProtocolError) as e:
+		print('Connection error, retrying... ({})'.format(e.args[0]), file=sys.stderr)
 		return _retry_on_fail(req, *args, **kwargs)
 
 class Nyaa(object):
@@ -23,7 +23,7 @@ class Nyaa(object):
 
 	@property
 	def last_entry(self):
-		r = requests.get(self.url)
+		r = _retry_on_fail(requests.get, self.url)
 		if r.status_code not in range(100, 399):
 			print('Connection error. Nyaa might be down (HTTP {}).'.format(r.status_code), file=sys.stderr)
 			sys.exit(1)
@@ -40,7 +40,10 @@ class NyaaEntry(object):
 		r = _retry_on_fail(requests.get, self.info_url)
 		setattr(r, 'encoding', 'utf-8')
 		self.page = BeautifulSoup(r.text)
-		if self.page.find('div', class_='content').text == '\xa0The torrent you are looking for does not appear to be in the database.':
+		content = self.page.find('div', class_='content').text
+		if 'The torrent you are looking for does not appear to be in the database' in content:
+			self.exists = False
+		elif 'The torrent you are looking for has been deleted' in content:
 			self.exists = False
 		else:
 			self.exists = True
