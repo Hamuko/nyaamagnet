@@ -24,10 +24,6 @@ class Nyaa(object):
 	@property
 	def last_entry(self):
 		r = _retry_on_fail(requests.get, self.url)
-		if r.status_code not in range(100, 399):
-			print('Connection error. Nyaa might be down (HTTP {}).'.format(r.status_code), file=sys.stderr)
-			sys.exit(1)
-
 		soup = BeautifulSoup(r.text)
 		link = soup.find('tr', class_='tlistrow').find('td', class_='tlistname').a['href']
 		return int(re.search('tid=([0-9]*)', link).group(1))
