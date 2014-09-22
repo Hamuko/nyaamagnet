@@ -2,17 +2,40 @@ from bs4 import BeautifulSoup
 import re
 import requests
 import sys
+import time
+
+delay = 0
 
 def _retry_on_fail(req, *args, **kwargs):
+	global delay
 	try:
 		r = req(*args, **kwargs)
 		if r.status_code not in range(100, 399):
-			print('Connection error, retrying... (HTTP {})'.format(r.status_code), file=sys.stderr)
+			delay = delay * 2 + 5
+			print('Connection error, retrying in {} seconds... (HTTP {})'.format(delay, r.status_code), file=sys.stderr)
+			if delay > 1800:
+				print('Too many retry attempts.')
+			exit(code=1)
+			time.sleep(delay)
 			return _retry_on_fail(req, *args, **kwargs)
 		else:
+			delay = 0
 			return r
-	except (requests.exceptions.ConnectionError, requests.packages.urllib3.exceptions.ProtocolError) as e:
-		print('Connection error, retrying... ({})'.format(e.args[0]), file=sys.stderr)
+	except requests.exceptions.RequestException as e:
+		delay = delay * 2 + 5
+		print('Connection error, retrying in {} seconds... ({})'.format(delay, e.args[0].args[0]), file=sys.stderr)
+		if delay > 1800:
+			print('Too many retry attempts.')
+			exit(code=1)
+		time.sleep(delay)
+		return _retry_on_fail(req, *args, **kwargs)
+	except requests.packages.urllib3.exceptions.ProtocolError as e:
+		delay = delay * 2 + 5
+		print('Connection error, retrying in {} seconds... ({})'.format(delay, e.args[1]), file=sys.stderr)
+		if delay > 1800:
+			print('Too many retry attempts.')
+			exit(code=1)
+		time.sleep(delay)
 		return _retry_on_fail(req, *args, **kwargs)
 
 class Nyaa(object):
